@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tittle</title>
+</head>
+<body>
+<center>
+    <canvas id="canvas" width="500" height="700"></canvas>
+</center>
+</body>
+</html>
+<script>
+    let ctx = document.getElementById('canvas').getContext('2d');
+    let game = 'start';
+    let yellowImg = new Image();
+    yellowImg.src = 'yellow.png';
+    let greenImg = new Image();
+    greenImg.src = 'green.png';
+
+    let gameOver = false;
+
+    let green = new Cars(greenImg, 200, 400, 100, 200);
+    let yellow = new Cars(yellowImg, 0, 100, 100, 200);
+    yellow.randomLocation();
+
+    function createBackGround() {
+        let bgImg = new Image();
+        bgImg.src = 'bg.jpg';
+        ctx.beginPath();
+        ctx.drawImage(bgImg, 0, 0, 500, 700);
+    }
+
+    function Cars(img, x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.img = img;
+        this.score = 0;
+        this.speed = 5;
+        this.moveLeft = function () {
+            if (this.x > 50) {
+                this.x -= 100;
+            }
+        }
+        this.moveRight = function () {
+            if (this.x < 400) {
+                this.x += 100;
+            }
+        }
+        this.dropDown = function () {
+            this.y += this.speed;
+        }
+        this.randomLocation = function () {
+            this.x = Math.random() * 430;
+            this.y = 0;
+        }
+        this.draw = function () {
+            ctx.beginPath();
+            ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+
+            if (yellow.y + 100 == 750) {
+                yellow.randomLocation();
+            }
+        }
+        this.drawScore = function () {
+            ctx.beginPath();
+            ctx.font = '50px Arial';
+            ctx.fillText(green.score, 400, 80);
+        }
+    }
+
+    function checkPoint() {
+        if ((yellow.y + yellow.height >= green.y) && thieu dieu kien
+            (((yellow.x <= green.x) && (green.x <= yellow.x + yellow.width)) ||
+                (yellow.x <= green.x + green.width) && (green.x + green.width <= yellow.x + yellow.width))) {
+            //alert('GAME OVER! YOUR SCORE IS: ' + green.score)
+            yellow.speed = 0;
+            ctx.beginPath();
+            ctx.font = '50px Arial';
+            ctx.fillText('GAME OVER', 100, 200);
+            ctx.fillText('Your score is: ' + green.score, 80, 280);
+            gameOver = true;
+        }
+        if (600 < yellow.y + yellow.height && yellow.y + yellow.height <= 605) {
+            green.score++;
+        }
+    }
+
+    function moveYellow() {
+        ctx.clearRect(0, 0, 500, 750);
+        createBackGround();
+        if (game == 'start') {
+            ctx.beginPath();
+            ctx.font = "60px Arial";
+            ctx.fillText('Press', 170, 300);
+            ctx.fillText('BACKSPACE', 70, 370);
+            ctx.fillStyle = 'green';
+            ctx.strokeText('Press', 170, 300);
+            ctx.strokeText('BACKSPACE', 70, 370);
+        }
+        if (game == 'play') {
+            green.draw();
+            yellow.draw();
+            green.drawScore();
+            checkPoint();
+        }
+    }
+
+    function yellowDrop() {
+        yellow.dropDown();
+        moveYellow();
+        if (!gameOver) {
+            setTimeout(yellowDrop, 20)
+        }
+    }
+
+    yellowDrop();
+
+    function pressKey(event) {
+        switch (event.keyCode) {
+            case 37:
+                green.moveLeft();
+                moveYellow();
+                break;
+            case 39:
+                green.moveRight();
+                moveYellow();
+                break;
+            case 32:
+                game = 'play';
+                break;
+        }
+    }
+
+    function play() {
+        window.addEventListener('keydown', pressKey)
+    }
+
+    play();
+</script>
